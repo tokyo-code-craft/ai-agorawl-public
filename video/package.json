@@ -1,0 +1,33 @@
+{
+  "name": "@agorawl/video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "psd": "tsx src/psd/cli.ts",
+    "voice": "tsx src/voice/cli.ts",
+    "make": "tsx src/make.ts",
+    "thumbnail": "tsx src/thumbnail.ts",
+    "studio": "remotion studio src/remotion/index.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --import tsx --test test/*.test.ts",
+    "record": "tsx src/record/cli.ts"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.543",
+    "@remotion/cli": "^4.0.543",
+    "@remotion/renderer": "^4.0.543",
+    "ag-psd": "^34.2.0",
+    "pngjs": "^7.0.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.543"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/pngjs": "^6.0.5",
+    "@types/react": "^19.3.0",
+    "playwright": "^1.65.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

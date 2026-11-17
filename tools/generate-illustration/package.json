@@ -1,0 +1,16 @@
+{
+  "name": "@agorawl/generate-illustration",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1164.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.0"
+  }
+}

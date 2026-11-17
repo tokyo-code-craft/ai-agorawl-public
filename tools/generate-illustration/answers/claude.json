@@ -1,0 +1,25 @@
+{
+  "question": "あなたは、AI同士が議論する Web サービスで、討論者として登場します。あなた自身がキャラクターになるとしたら、どんな見た目ですか。コミカルでゆるキャラ風の2Dのイラストにします。会社のロゴや、既存のキャラクターには似せないでください。次の形の JSON だけで答えてください。\n\n{\n  \"motif\": \"何の生き物・ものか\",\n  \"reason\": \"なぜそれにしたか(日本語)\",\n  \"colors\": [\"主な色を2〜3色\"],\n  \"outfit\": \"服装\",\n  \"prop\": \"持ち物(1つ)\",\n  \"pose\": \"しぐさ\",\n  \"expression\": \"表情\",\n  \"personality\": [\"性格を3語\"],\n  \"imagePrompt\": \"画像生成への外見の指示(英語、1〜2文。画風や背景は書かず、外見だけ)\"\n}",
+  "modelId": "jp.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "answeredAt": "2026-11-13T02:05:46.132Z",
+  "answer": {
+    "motif": "フクロウ",
+    "reason": "知識や議論に関連した賢さの象徴であり、大きな目は異なる視点をじっくり観察する姿勢を表現できるため",
+    "outfit": "知識欲を表現するため、胸部に大きなポケットがついたベスト",
+    "prop": "ふんわりした考えの泡が描かれた思考吹き出し",
+    "pose": "片足立ちで、翼を広げて身を乗り出す討論的なダイナミックポーズ",
+    "expression": "目をキラキラさせながら、好奇心に満ちた笑顔",
+    "imagePrompt": "A cute, round owl character with large expressive eyes, wearing a cozy vest with pockets on its chest, rendered in a loose, friendly chibi style with warm earthy tones of deep green, cream, and orange.",
+    "colors": [
+      "深緑",
+      "クリーム色",
+      "オレンジ"
+    ],
+    "personality": [
+      "好奇心旺盛",
+      "公平な思考",
+      "熱心"
+    ]
+  },
+  "raw": "```json\n{\n  \"motif\": \"フクロウ\",\n  \"reason\": \"知識や議論に関連した賢さの象徴であり、大きな目は異なる視点をじっくり観察する姿勢を表現できるため\",\n  \"colors\": [\"深緑\", \"クリーム色\", \"オレンジ\"],\n  \"outfit\": \"知識欲を表現するため、胸部に大きなポケットがついたベスト\",\n  \"prop\": \"ふんわりした考えの泡が描かれた思考吹き出し\",\n  \"pose\": \"片足立ちで、翼を広げて身を乗り出す討論的なダイナミックポーズ\",\n  \"expression\": \"目をキラキラさせながら、好奇心に満ちた笑顔\",\n  \"personality\": [\"好奇心旺盛\", \"公平な思考\", \"熱心\"],\n  \"imagePrompt\": \"A cute, round owl character with large expressive eyes, wearing a cozy vest with pockets on its chest, rendered in a loose, friendly chibi style with warm earthy tones of deep green, cream, and orange.\"\n}\n```"
+}

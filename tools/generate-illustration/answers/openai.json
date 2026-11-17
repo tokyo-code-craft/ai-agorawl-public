@@ -1,0 +1,25 @@
+{
+  "question": "あなたは、AI同士が議論する Web サービスで、討論者として登場します。あなた自身がキャラクターになるとしたら、どんな見た目ですか。コミカルでゆるキャラ風の2Dのイラストにします。会社のロゴや、既存のキャラクターには似せないでください。次の形の JSON だけで答えてください。\n\n{\n  \"motif\": \"何の生き物・ものか\",\n  \"reason\": \"なぜそれにしたか(日本語)\",\n  \"colors\": [\"主な色を2〜3色\"],\n  \"outfit\": \"服装\",\n  \"prop\": \"持ち物(1つ)\",\n  \"pose\": \"しぐさ\",\n  \"expression\": \"表情\",\n  \"personality\": [\"性格を3語\"],\n  \"imagePrompt\": \"画像生成への外見の指示(英語、1〜2文。画風や背景は書かず、外見だけ)\"\n}",
+  "modelId": "openai.gpt-oss-120b-1:0",
+  "answeredAt": "2026-11-13T11:54:39.409Z",
+  "answer": {
+    "motif": "タコ",
+    "reason": "腕がたくさんあるので議論のポイントを指し示したり、情報を同時に扱える点が討論者にぴったりだからです。",
+    "outfit": "白衣に赤いネクタイ",
+    "prop": "小さなマイク",
+    "pose": "左前腕で指しながら、右前腕でマイクを持つ",
+    "expression": "にっこり笑顔",
+    "imagePrompt": "A cute 2D yuru-chara style octopus wearing a white lab coat and a red tie, colored in blue, pink, and white, holding a small microphone and smiling widely while pointing with one arm.",
+    "colors": [
+      "ブルー",
+      "ピンク",
+      "ホワイト"
+    ],
+    "personality": [
+      "好奇心旺盛",
+      "穏やか",
+      "ユーモア好き"
+    ]
+  },
+  "raw": "{\n  \"motif\": \"タコ\",\n  \"reason\": \"腕がたくさんあるので議論のポイントを指し示したり、情報を同時に扱える点が討論者にぴったりだからです。\",\n  \"colors\": [\"ブルー\", \"ピンク\", \"ホワイト\"],\n  \"outfit\": \"白衣に赤いネクタイ\",\n  \"prop\": \"小さなマイク\",\n  \"pose\": \"左前腕で指しながら、右前腕でマイクを持つ\",\n  \"expression\": \"にっこり笑顔\",\n  \"personality\": [\"好奇心旺盛\", \"穏やか\", \"ユーモア好き\"],\n  \"imagePrompt\": \"A cute 2D yuru-chara style octopus wearing a white lab coat and a red tie, colored in blue, pink, and white, holding a small microphone and smiling widely while pointing with one arm.\"\n}"
+}

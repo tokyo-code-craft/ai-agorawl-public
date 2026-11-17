@@ -1,0 +1,15 @@
+{
+  "name": "@agorawl/start-debate",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@agorawl/contract": "^0.0.0",
+    "@aws-sdk/client-cloudformation": "^3.1164.0",
+    "@aws-sdk/client-dynamodb": "^3.1164.0",
+    "@aws-sdk/client-sfn": "^3.1164.0",
+    "@aws-sdk/lib-dynamodb": "^3.1164.0"
+  }
+}

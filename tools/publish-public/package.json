@@ -1,0 +1,8 @@
+{
+  "name": "@agorawl/publish-public",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts"
+  }
+}

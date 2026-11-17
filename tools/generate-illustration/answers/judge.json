@@ -1,0 +1,34 @@
+{
+  "question": "あなたは、AI同士が議論する Web サービスで、議論の勝ち負けを決める審判として登場します。審判は3人いて、同じキャラクターが、それぞれ別の観点で判定します(論理: 主張と理由の筋道に飛躍や矛盾がないか。根拠: 引用が資料と合っているか、根拠の出どころが確かか。反論・応答: 反論が相手の主張を崩しているか、受けた反論に正面から答えているか)。3人は持ち物だけを変えて描き分けます。討論者には、すでにフクロウ、タコ、電球とペンギンの融合生物のキャラクターがいます。審判は、これらとは別の生き物・ものにしてください。あなた自身が審判のキャラクターになるとしたら、どんな見た目ですか。コミカルでゆるキャラ風の2Dのイラストにします。会社のロゴや、既存のキャラクターには似せないでください。持ち物に文字は描かないでください。次の形の JSON だけで答えてください。\n\n{\n  \"motif\": \"何の生き物・ものか\",\n  \"reason\": \"なぜそれにしたか(日本語)\",\n  \"colors\": [\"主な色を2〜3色\"],\n  \"outfit\": \"服装\",\n  \"props\": { \"logic\": \"論理の審判の持ち物(1つ)\", \"evidence\": \"根拠の審判の持ち物(1つ)\", \"exchange\": \"反論・応答の審判の持ち物(1つ)\" },\n  \"pose\": \"しぐさ\",\n  \"expression\": \"表情\",\n  \"personality\": [\"性格を3語\"],\n  \"imagePrompt\": \"画像生成への外見の指示(英語、1〜2文。3人に共通の外見だけ。持ち物、画風、背景は書かない)\",\n  \"propPrompts\": { \"logic\": \"論理の審判の持ち物の指示(英語、短い句)\", \"evidence\": \"根拠の審判の持ち物の指示(英語、短い句)\", \"exchange\": \"反論・応答の審判の持ち物の指示(英語、短い句)\" }\n}",
+  "modelId": "global.anthropic.claude-opus-4-6-v1",
+  "answeredAt": "2026-11-14T04:54:04.281Z",
+  "answer": {
+    "motif": "ハリネズミ",
+    "reason": "針で鋭く論点を突く審判のイメージと、丸くてコミカルなゆるキャラ体型を両立できる。討論者のフクロウ・タコ・ペンギン融合体とも被らず、小動物ならではの親しみやすさがある。",
+    "outfit": "小さな黒いジャッジローブ（裾が短めでずんぐり体型が見える）に白い襟飾り",
+    "pose": "片手を腰に当て、もう片方の手で持ち物を高く掲げている",
+    "expression": "片眉をキリッと上げつつ口元はニヤリと笑っている",
+    "imagePrompt": "A cute round hedgehog character standing upright on two legs, wearing a short black judge robe with a white collar ruffle, with warm brown quills tipped in dark brown and a creamy belly, small stubby limbs, one hand on its hip, one eyebrow raised with a cheeky smirk.",
+    "colors": [
+      "#C2956B",
+      "#F5E6CA",
+      "#5B3A29"
+    ],
+    "personality": [
+      "公正",
+      "辛口",
+      "愛嬌がある"
+    ],
+    "props": {
+      "logic": "天秤ばかり",
+      "evidence": "虫めがね",
+      "exchange": "盾と小さな旗のセット"
+    },
+    "propPrompts": {
+      "logic": "a small golden balance scale held up high",
+      "evidence": "an oversized brass magnifying glass held up high",
+      "exchange": "a tiny round wooden shield and a small triangular flag held up high together"
+    }
+  },
+  "raw": "```json\n{\n  \"motif\": \"ハリネズミ\",\n  \"reason\": \"針で鋭く論点を突く審判のイメージと、丸くてコミカルなゆるキャラ体型を両立できる。討論者のフクロウ・タコ・ペンギン融合体とも被らず、小動物ならではの親しみやすさがある。\",\n  \"colors\": [\"#C2956B\", \"#F5E6CA\", \"#5B3A29\"],\n  \"outfit\": \"小さな黒いジャッジローブ（裾が短めでずんぐり体型が見える）に白い襟飾り\",\n  \"props\": {\n    \"logic\": \"天秤ばかり\",\n    \"evidence\": \"虫めがね\",\n    \"exchange\": \"盾と小さな旗のセット\"\n  },\n  \"pose\": \"片手を腰に当て、もう片方の手で持ち物を高く掲げている\",\n  \"expression\": \"片眉をキリッと上げつつ口元はニヤリと笑っている\",\n  \"personality\": [\"公正\", \"辛口\", \"愛嬌がある\"],\n  \"imagePrompt\": \"A cute round hedgehog character standing upright on two legs, wearing a short black judge robe with a white collar ruffle, with warm brown quills tipped in dark brown and a creamy belly, small stubby limbs, one hand on its hip, one eyebrow raised with a cheeky smirk.\",\n  \"propPrompts\": {\n    \"logic\": \"a small golden balance scale held up high\",\n    \"evidence\": \"an oversized brass magnifying glass held up high\",\n    \"exchange\": \"a tiny round wooden shield and a small triangular flag held up high together\"\n  }\n}\n```"
+}

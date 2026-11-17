@@ -1,0 +1,37 @@
+{
+  "name": "ai-agorawl",
+  "private": true,
+  "workspaces": [
+    "contract",
+    "engine",
+    "app/api",
+    "app/realtime",
+    "app/web",
+    "app/auth",
+    "infra",
+    "tools/start-debate",
+    "tools/analyze-debate",
+    "tools/call-api",
+    "tools/unlock-user",
+    "tools/generate-illustration",
+    "tools/publish-public"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p app/web/tsconfig.json",
+    "test": "npm test -w @agorawl/engine -w @agorawl/api -w @agorawl/realtime -w @agorawl/web -w @agorawl/auth -w @agorawl/analyze-debate -w @agorawl/generate-illustration",
+    "cdk": "npm run cdk -w @agorawl/infra --",
+    "start-debate": "npm start -w @agorawl/start-debate --",
+    "analyze-debate": "npm start -w @agorawl/analyze-debate --",
+    "call-api": "npm start -w @agorawl/call-api --",
+    "unlock-user": "npm start -w @agorawl/unlock-user --",
+    "generate-illustration": "npm start -w @agorawl/generate-illustration --",
+    "publish-public": "npm start -w @agorawl/publish-public --",
+    "build:web": "npm run build -w @agorawl/web",
+    "dev:web": "npm run dev -w @agorawl/web"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

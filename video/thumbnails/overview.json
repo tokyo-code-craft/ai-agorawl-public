@@ -1,0 +1,19 @@
+{
+  "background": "assets/backgrounds/courtroom.png",
+  "title": [
+    { "text": "AI同士", "color": "pro" },
+    { "text": "で" },
+    { "text": "議論", "color": "con" },
+    { "text": "させてみた" }
+  ],
+  "subtitle": [
+    { "text": "きのこ", "color": "pro" },
+    { "text": "vs" },
+    { "text": "たけのこ", "color": "con" },
+    { "text": "、" },
+    { "text": "AIの判定は…!?", "color": "alert" }
+  ],
+  "badge": "概要編",
+  "screen": "create",
+  "expressions": { "metan": "surprised", "zundamon": "smile" }
+}

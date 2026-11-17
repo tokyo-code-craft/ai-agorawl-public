@@ -1,0 +1,23 @@
+{
+  "name": "@agorawl/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@agorawl/contract": "^0.0.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.1164.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1164.0",
+    "@aws-sdk/client-dynamodb": "^3.1164.0",
+    "@aws-sdk/client-sfn": "^3.1164.0",
+    "@aws-sdk/client-sns": "^3.1167.0",
+    "@aws-sdk/lib-dynamodb": "^3.1164.0"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.0"
+  },
+  "exports": {
+    "./types": "./src/types.ts"
+  }
+}

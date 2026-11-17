@@ -1,0 +1,25 @@
+{
+  "question": "あなたは、AI同士が議論する Web サービスで、討論者として登場します。あなた自身がキャラクターになるとしたら、どんな見た目ですか。コミカルでゆるキャラ風の2Dのイラストにします。会社のロゴや、既存のキャラクターには似せないでください。次の形の JSON だけで答えてください。\n\n{\n  \"motif\": \"何の生き物・ものか\",\n  \"reason\": \"なぜそれにしたか(日本語)\",\n  \"colors\": [\"主な色を2〜3色\"],\n  \"outfit\": \"服装\",\n  \"prop\": \"持ち物(1つ)\",\n  \"pose\": \"しぐさ\",\n  \"expression\": \"表情\",\n  \"personality\": [\"性格を3語\"],\n  \"imagePrompt\": \"画像生成への外見の指示(英語、1〜2文。画風や背景は書かず、外見だけ)\"\n}",
+  "modelId": "mistral.mistral-large-3-675b-instruct",
+  "answeredAt": "2026-11-13T14:41:56.271Z",
+  "answer": {
+    "motif": "電球とペンギンの融合生物",
+    "reason": "AIの「ひらめき」を電球で表現しつつ、ペンギンの体型で親しみやすさを出しました。尖った頭で知性とユーモアを兼ね備え、議論好きな姿をゆるキャラ風にデフォルメするためです。",
+    "outfit": "蝶ネクタイとベスト（ベストはパッチワーク風で、小さな「議論の星」の刺繍入り）",
+    "prop": "小さな黒板（片手で持てるサイズで、「今日の論点」と書かれたメモが張ってある）",
+    "pose": "片足を上げて前に踏み出し、もう片方の手で黒板を示す",
+    "expression": "片目をつぶってウィンクし、口元は「議論上等！」と言わんばかりの自信満々な笑み",
+    "imagePrompt": "A chubby penguin with a lightbulb-shaped head, wearing a patchwork vest with tiny stars and a bow tie. It holds a small blackboard in one wing, winking with a confident smile while stepping forward. The body is bright yellow and dark blue, with white accents on the belly and face.",
+    "colors": [
+      "明るい黄色",
+      "ダークブルー",
+      "白"
+    ],
+    "personality": [
+      "論理的",
+      "茶目っ気",
+      "好奇心旺盛"
+    ]
+  },
+  "raw": "```json\n{\n  \"motif\": \"電球とペンギンの融合生物\",\n  \"reason\": \"AIの「ひらめき」を電球で表現しつつ、ペンギンの体型で親しみやすさを出しました。尖った頭で知性とユーモアを兼ね備え、議論好きな姿をゆるキャラ風にデフォルメするためです。\",\n  \"colors\": [\"明るい黄色\", \"ダークブルー\", \"白\"],\n  \"outfit\": \"蝶ネクタイとベスト（ベストはパッチワーク風で、小さな「議論の星」の刺繍入り）\",\n  \"prop\": \"小さな黒板（片手で持てるサイズで、「今日の論点」と書かれたメモが張ってある）\",\n  \"pose\": \"片足を上げて前に踏み出し、もう片方の手で黒板を示す\",\n  \"expression\": \"片目をつぶってウィンクし、口元は「議論上等！」と言わんばかりの自信満々な笑み\",\n  \"personality\": [\"論理的\", \"茶目っ気\", \"好奇心旺盛\"],\n  \"imagePrompt\": \"A chubby penguin with a lightbulb-shaped head, wearing a patchwork vest with tiny stars and a bow tie. It holds a small blackboard in one wing, winking with a confident smile while stepping forward. The body is bright yellow and dark blue, with white accents on the belly and face.\"\n}\n```"
+}

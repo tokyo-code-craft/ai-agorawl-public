@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "contract/src",
+    "engine/src",
+    "engine/test",
+    "app/api/src",
+    "app/api/test",
+    "app/realtime/src",
+    "app/realtime/test",
+    "app/auth/src",
+    "app/auth/test",
+    "infra/bin",
+    "infra/lib",
+    "tools/start-debate/src",
+    "tools/analyze-debate/src",
+    "tools/analyze-debate/test",
+    "tools/call-api/src",
+    "tools/publish-public/src",
+    "tools/unlock-user/src",
+    "tools/generate-illustration/src",
+    "tools/generate-illustration/test"
+  ]
+}

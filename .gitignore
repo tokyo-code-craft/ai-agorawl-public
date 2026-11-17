@@ -1,0 +1,24 @@
+node_modules/
+cdk.out/
+.env
+.env.*
+*.pem
+.aws/
+.DS_Store
+dist/
+
+# Claude Code の個人用設定
+.claude/settings.local.json
+
+# 手元の作業用(会話のログなど)。コミットしない
+tmp/
+# 開発用の設定(手元で作る。コミットしない)
+app/web/public/config.json
+infra/local.json
+# 立ち絵の候補(採用した画像だけ app/web/public/characters/ に置く)
+tools/generate-illustration/out/
+
+# 解説動画の素材と生成物(docs/06-explainer-video「素材の置き場所」)。コミットしない
+video/assets/
+video/out/
+video/public/

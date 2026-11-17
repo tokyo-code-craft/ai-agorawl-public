@@ -1,0 +1,12 @@
+{
+  "name": "@agorawl/call-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.1164.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1164.0"
+  }
+}

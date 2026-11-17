@@ -1,0 +1,19 @@
+{
+  "title": "AI同士で議論させてみた【概要編】",
+  "background": "assets/backgrounds/courtroom.png",
+  "bgm": { "file": "assets/bgm/maou_bgm_piano25.mp3" },
+  "lines": [
+    { "speaker": "zundamon", "text": "AI言い合いバトル、どうだったのだ？", "expression": "smile", "screen": null },
+    { "speaker": "metan", "text": "すごく面白いわね、色んなテーマで議論を動かしてみたくなったわ", "expression": "smile" },
+    { "speaker": "zundamon", "text": "そうなのだ！面白いテーマがあったら議論を動かしてまた動画にしてみたいのだ！", "expression": "smile" },
+    { "speaker": "metan", "text": "いいわね、この議論ってわたしも動かせるのかしら？", "expression": "normal" },
+    { "speaker": "zundamon", "text": "できるのだ！", "expression": "smile" },
+    { "speaker": "zundamon", "text": "AI言い合いバトルのWebサイトはしばらく動かしておくからデモ用のユーザでログインして動かすことが可能なのだ。", "reading": "AI言い合いバトルのウェブサイトはしばらく動かしておくからデモ用のユーザでログインして動かすことが可能なのだ。", "expression": "normal" },
+    { "speaker": "zundamon", "text": "詳細は概要欄から確認できるのだ", "expression": "normal" },
+    { "speaker": "zundamon", "text": "GitHubのリポジトリも概要欄に書いておくので作り方も確認できるのだ", "reading": "ギットハブのリポジトリも概要欄に書いておくので作り方も確認できるのだ", "expression": "normal" },
+    { "speaker": "metan", "text": "この動画は概要編って書いてあるけど、他にもあるのかしら", "expression": "normal" },
+    { "speaker": "zundamon", "text": "AI言い合いバトルを作る上で工夫した点とかを詳細編としてまとめて動画にする予定なのだ", "reading": "AI言い合いバトルを作るうえで工夫した点とかを詳細編としてまとめて動画にする予定なのだ", "expression": "smile" },
+    { "speaker": "metan", "text": "その時は、議論のテーマは炎上しなそうなテーマにしてね", "expression": "smile" },
+    { "speaker": "zundamon", "text": "・・・善処するのだ", "expression": "troubled" }
+  ]
+}
