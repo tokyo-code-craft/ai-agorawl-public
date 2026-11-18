@@ -10,6 +10,9 @@ export const FADE_SEC = 1;
 export const START_SEC = FADE_SEC + 0.5;
 /** 最後のセリフの後から動画の終わりまで(秒。そのまま2秒見せ、1秒で黒にする) */
 export const END_SEC = 2 + FADE_SEC;
+/** 画面を一瞬黒くするときの、黒くする・黒のまま・明るくする長さ(秒。行の blackout) */
+export const BLACKOUT_FADE_SEC = 0.5;
+export const BLACKOUT_HOLD_SEC = 0.5;
 /** セリフとセリフの間(秒) */
 export const GAP_SEC = 0.3;
 
@@ -21,21 +24,45 @@ export interface TimedLine extends ScriptLine {
   screenFrom?: number;
   /** 長さのフレーム */
   frames: number;
+  /** 画面を一瞬黒くし始めるフレーム(行の blackout) */
+  blackoutFrom?: number;
 }
 
 export function layout(lines: ScriptLine[], voices: VoiceLine[]): { lines: TimedLine[]; totalFrames: number } {
   let t = START_SEC;
   const timed = lines.map((line, i) => {
     const voice = voices[i];
+    // 画面を一瞬黒くする。この行の画面の映像は、真っ黒になったところで切り替える
+    let blackoutFrom: number | undefined;
+    if (line.blackout) {
+      blackoutFrom = Math.round(t * FPS);
+      t += BLACKOUT_FADE_SEC;
+    }
     const screenFrom = Math.round(t * FPS);
+    if (line.blackout) t += BLACKOUT_HOLD_SEC + BLACKOUT_FADE_SEC;
     t += line.wait ?? 0;
     const from = Math.round(t * FPS);
-    const frames = Math.max(1, Math.ceil(voice.duration * FPS));
+    // 2人で同時に言う行は、長い方の音声に合わせる
+    const frames = Math.max(1, Math.ceil(Math.max(voice.duration, voice.together?.duration ?? 0) * FPS));
     t += frames / FPS + GAP_SEC;
-    return { ...line, voice, from, frames, screenFrom };
+    return { ...line, voice, from, frames, screenFrom, ...(blackoutFrom !== undefined ? { blackoutFrom } : {}) };
   });
   const last = timed[timed.length - 1];
   return { lines: timed, totalFrames: last.from + last.frames + Math.round(END_SEC * FPS) };
+}
+
+/** 行の blackout で画面を覆う黒の濃さ(0〜1) */
+export function blackoutOpacity(lines: TimedLine[], frame: number): number {
+  const fade = BLACKOUT_FADE_SEC * FPS;
+  const hold = BLACKOUT_HOLD_SEC * FPS;
+  let v = 0;
+  for (const l of lines) {
+    if (l.blackoutFrom === undefined) continue;
+    const t = frame - l.blackoutFrom;
+    if (t < 0 || t > fade * 2 + hold) continue;
+    v = Math.max(v, t < fade ? t / fade : t < fade + hold ? 1 : 1 - (t - fade - hold) / fade);
+  }
+  return v;
 }
 
 /** その時点で口を開けているか(秒は、セリフの始まりからの時間) */

@@ -76,9 +76,12 @@ async function post(path: string, body?: unknown): Promise<Response> {
   return res;
 }
 
-export async function audioQuery(text: string, styleId: number): Promise<AudioQuery> {
+/** speed は話す速さの倍率(省くと 1.0) */
+export async function audioQuery(text: string, styleId: number, speed = 1): Promise<AudioQuery> {
   const res = await post(`/audio_query?text=${encodeURIComponent(text)}&speaker=${styleId}`);
-  return (await res.json()) as AudioQuery;
+  const query = (await res.json()) as AudioQuery;
+  query.speedScale = speed;
+  return query;
 }
 
 /** 「・・・」(中黒2つ以上)と「…」。docs/06-explainer-video/README.md「「・・・」の間」 */
@@ -90,13 +93,13 @@ export const ELLIPSIS_PAUSE_SEC = 1.0;
  * 読みを「・・・」で区切って問い合わせ、つないで1つにする。文の途中の「・・・」は1.0秒の間に、文の頭の「・・・」は話し始める前の1.0秒にする。
  * 文の終わりの「・・・」は何もしない。「・・・」がなければ、そのまま問い合わせる
  */
-export async function audioQueryWithPauses(text: string, styleId: number): Promise<AudioQuery> {
+export async function audioQueryWithPauses(text: string, styleId: number, speed = 1): Promise<AudioQuery> {
   const parts = text.split(new RegExp(ELLIPSIS.source, 'g'));
-  if (parts.length === 1) return audioQuery(text, styleId);
+  if (parts.length === 1) return audioQuery(text, styleId, speed);
   let query: AudioQuery | null = null;
   let lead = 0;
   for (const [i, part] of parts.entries()) {
-    const q = part.trim() ? await audioQuery(part, styleId) : null;
+    const q = part.trim() ? await audioQuery(part, styleId, speed) : null;
     if (!q || q.accent_phrases.length === 0) {
       // 文の頭の「・・・」(まだ声がない)は、話し始める前の間にする
       if (!query && i < parts.length - 1) lead = ELLIPSIS_PAUSE_SEC;
@@ -114,7 +117,7 @@ export async function audioQueryWithPauses(text: string, styleId: number): Promi
       last.pause_mora = { text: '、', consonant: null, consonant_length: null, vowel: 'pau', vowel_length: ELLIPSIS_PAUSE_SEC * (query.speedScale || 1), pitch: 0 };
     }
   }
-  if (!query) return audioQuery(text, styleId);
+  if (!query) return audioQuery(text, styleId, speed);
   query.prePhonemeLength += lead * (query.speedScale || 1);
   return query;
 }

@@ -14,6 +14,8 @@ const FONT = 'assets/fonts/DelaGothicOne-Regular.ttf';
 
 interface ThumbnailSpec {
   background?: string;
+  /** 題の上に小さく出す行(シリーズの名前など)。省ける */
+  kicker?: TextPart[];
   title: TextPart[];
   subtitle: TextPart[];
   badge: string;
@@ -56,6 +58,7 @@ function screenStill(id: string): string | undefined {
 }
 
 const inputProps: ThumbnailProps = {
+  kicker: spec.kicker,
   title: spec.title,
   subtitle: spec.subtitle,
   badge: spec.badge,

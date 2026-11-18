@@ -82,7 +82,7 @@ export AGORAWL_USER=<メールアドレス> AGORAWL_PASSWORD=<パスワード>  
 npm run record -- list                 # 場面の一覧
 npm run record -- cover login          # 場面を指定して録る
 npm run record -- all                  # 費用のかからない場面を全部録る
-npm run record -- create --cost        # 議論を本当に作って録る(Bedrock の費用がかかる。作った議論の ID は record.json に入る)
+npm run record -- create --cost        # 議論を本当に作って録る(Bedrock の費用がかかる。作った議論の ID は record.json の debates.overview に入る)
 ```
 
 - 場面と操作は `src/record/scenes.ts` に書く。

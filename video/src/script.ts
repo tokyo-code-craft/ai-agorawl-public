@@ -4,6 +4,8 @@ import { CHARACTERS, type SpeakerId } from './characters.ts';
 
 export interface ScriptLine {
   speaker: SpeakerId;
+  /** 同じセリフを、同時に言うもう1人の話し手(例: 2人で「やっぱり」と言う)。表情は2人とも expression */
+  with?: SpeakerId;
   /** 字幕に出す文 */
   text: string;
   /** 読み上げる文。字幕と読み方を変えたいときだけ書く(例: 「Bedrock」を「ベッドロック」と読ませる) */
@@ -12,6 +14,8 @@ export interface ScriptLine {
   expression?: string;
   /** 話し始める前の間(秒)。間の間、この行の画面の映像を先に出す */
   wait?: number;
+  /** 話し始める前に、画面を一瞬黒くする(時間が経ったことを表す)。この行の画面の映像は、黒の間に切り替える */
+  blackout?: boolean;
   /** 出す画面の映像。省くと前の行の画面を続ける。null で画面を消す */
   screen?: ScreenRef | null;
 }
@@ -41,8 +45,13 @@ export interface Script {
   background?: string;
   /** BGM。省くと流さない */
   bgm?: Bgm;
+  /** 話す速さ(VOICEVOX の速さの倍率。0.5〜2)。省くと SPEED。全部のセリフに同じ速さを使う */
+  speed?: number;
   lines: ScriptLine[];
 }
+
+/** 話す速さの標準。VOICEVOX の標準(1.0)では遅く感じるため、少し速くする */
+export const SPEED = 1.2;
 
 /** BGM の既定の音量。声の邪魔にならないよう小さめにする */
 export const BGM_VOLUME = 0.04;
@@ -61,11 +70,14 @@ export function parseScript(json: string): Script {
     const v = s.bgm.volume;
     if (v !== undefined && !(typeof v === 'number' && v >= 0 && v <= 1)) throw new Error('bgm の volume は 0〜1');
   }
+  if (s.speed !== undefined && !(typeof s.speed === 'number' && s.speed >= 0.5 && s.speed <= 2)) throw new Error('speed は 0.5〜2');
   s.lines.forEach((l, i) => {
     const c = CHARACTERS[l.speaker];
     if (!c) throw new Error(`${i + 1}行目: 話し手 ${l.speaker} がいない`);
+    if (l.with !== undefined && (!CHARACTERS[l.with] || l.with === l.speaker)) throw new Error(`${i + 1}行目: with には、speaker と違う話し手を書く`);
     if (!l.text) throw new Error(`${i + 1}行目: text が空`);
     if (l.wait !== undefined && !(typeof l.wait === 'number' && l.wait >= 0)) throw new Error(`${i + 1}行目: wait は0以上の秒`);
+    if (l.blackout !== undefined && typeof l.blackout !== 'boolean') throw new Error(`${i + 1}行目: blackout は true か false`);
     if (l.screen) {
       const sc = l.screen;
       if (typeof sc.id !== 'string' || !sc.id) throw new Error(`${i + 1}行目: screen には id が要る`);
@@ -86,7 +98,7 @@ export const readScript = (file: string): Script => parseScript(readFileSync(fil
 
 /**
  * 段階ごとの台本を、1本の台本につなぐ(docs/06-explainer-video/README.md「台本データ」)。
- * 行は順につなぎ、題・背景・BGM は最初の台本のものを使う
+ * 行は順につなぎ、題・背景・BGM・速さは最初の台本のものを使う
  */
 export function joinScripts(scripts: Script[]): Script {
   if (scripts.length === 0) throw new Error('台本が1つもない');

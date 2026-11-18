@@ -52,6 +52,8 @@ test('台本の話し手と表情を確かめる', () => {
   assert.equal(parseScript('{"title":"t","lines":[{"speaker":"metan","text":"a"}]}').lines.length, 1);
   assert.throws(() => parseScript('{"title":"t","bgm":{},"lines":[{"speaker":"metan","text":"a"}]}'), /file/);
   assert.throws(() => parseScript('{"title":"t","bgm":{"file":"a.mp3","volume":2},"lines":[{"speaker":"metan","text":"a"}]}'), /volume/);
+  assert.throws(() => parseScript('{"title":"t","speed":3,"lines":[{"speaker":"metan","text":"a"}]}'), /speed/);
+  assert.equal(parseScript('{"title":"t","speed":1.2,"lines":[{"speaker":"metan","text":"a"}]}').speed, 1.2);
 });
 
 test('画面の映像の区間: 省くと続け、null で消し、同じ場面はまとめる', async () => {
@@ -90,4 +92,30 @@ test('話し始める前の間: 台詞は間の後に始まり、画面の映像
   assert.equal(timed[1].from - timed[1].screenFrom!, 2 * FPS);
   const segs = screenSegments(timed, totalFrames);
   assert.equal(segs[0].from, timed[1].screenFrom);
+});
+
+test('画面を一瞬黒くする: 0.5秒で黒くし、0.5秒黒のまま、0.5秒で明るくしてから話す。画面の映像は真っ黒のときに切り替える', async () => {
+  const { blackoutOpacity, screenSegments } = await import('../src/timeline.ts');
+  const v = { file: '', duration: 1, mouth: [] };
+  const lines = [
+    { speaker: 'zundamon' as const, text: 'a', screen: { id: 'before' } },
+    { speaker: 'metan' as const, text: 'b', blackout: true, wait: 1, screen: { id: 'after' } },
+  ];
+  const { lines: timed, totalFrames } = layout(lines, [v, v] as never);
+  const b = timed[1].blackoutFrom!;
+  assert.equal(timed[1].screenFrom! - b, 0.5 * FPS);
+  assert.equal(timed[1].from - b, (1.5 + 1) * FPS);
+  assert.equal(blackoutOpacity(timed, b - 1), 0);
+  assert.equal(blackoutOpacity(timed, b + 0.5 * FPS), 1);
+  assert.equal(blackoutOpacity(timed, b + 1.5 * FPS), 0);
+  const segs = screenSegments(timed, totalFrames);
+  assert.deepEqual(segs.map((s) => [s.id, s.from]), [['before', 0], ['after', timed[1].screenFrom]]);
+});
+
+test('2人で同時に言う行: 長い方の音声に合わせて進み、with に speaker と同じ話し手は書けない', () => {
+  const v = (duration: number) => ({ file: 'x.wav', duration, mouth: [] as [number, number][] });
+  const lines = [{ speaker: 'zundamon' as const, with: 'metan' as const, text: 'やっぱり' }, { speaker: 'metan' as const, text: 'b' }];
+  const { lines: timed } = layout(lines, [{ ...v(1), together: v(2) }, v(1)]);
+  assert.equal(timed[0].frames, 2 * FPS);
+  assert.throws(() => parseScript(JSON.stringify({ title: 't', lines: [{ speaker: 'zundamon', with: 'zundamon', text: 'a' }] })));
 });

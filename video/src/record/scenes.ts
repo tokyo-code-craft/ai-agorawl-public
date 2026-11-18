@@ -2,13 +2,16 @@
 // 場面ごとに、動画で録るか(video)、画面の写真を撮るか(still)を選ぶ
 import type { Page } from 'playwright';
 
+/** 動画の名前(video/record.json の debates の名前)。docs/06-explainer-video/README.md「画面の映像」 */
+export type VideoName = 'overview' | 'examples';
+
 export interface SceneContext {
   /** 本番の画面の URL(末尾の / なし) */
   webUrl: string;
   /** ログインのメールアドレスとパスワード */
   user: string;
   password: string;
-  /** 見せる議論の ID(video/record.json) */
+  /** 見せる議論の ID(video/record.json の、この場面の動画の議論) */
   debateId?: string;
   /** 作った議論の ID を残す(create の場面) */
   saveDebateId(id: string): void;
@@ -23,6 +26,8 @@ export interface Scene {
   loggedIn: boolean;
   /** 見せる議論が要るか */
   needsDebate?: boolean;
+  /** どの動画の議論を見せるか(video/record.json の debates の名前)。省略すると 1本目(overview) */
+  video?: VideoName;
   /** Bedrock の費用がかかるか(--cost を付けたときだけ録る) */
   costs?: boolean;
   /** 録り始める前の準備(前の場面で終えた状態にする。録らない) */
@@ -879,4 +884,427 @@ export const SCENES: Scene[] = [
       await scrollTo(page, '.judge-card, .verdict');
     },
   },
+
+  // ---- 2本目(実例編)。見せる議論は record.json の debates.examples ----
+  {
+    id: 'ex-settings',
+    kind: 'still',
+    video: 'examples',
+    title: '実例編: 作成の画面に、議論の設定(テーマ、立場、AI、8ターン)を入れたところ(作らない)',
+    loggedIn: true,
+    async run(page, { webUrl }) {
+      await page.goto(`${webUrl}/new`);
+      await page.waitForSelector('input[placeholder^="例: 虎と熊"]');
+      await page.locator('input[placeholder^="例: 虎と熊"]').fill(EX.theme);
+      await page.locator('input[placeholder="例: 虎派"]').fill(EX.pro);
+      await page.locator('input[placeholder="例: 熊派"]').fill(EX.con);
+      await page.waitForSelector('.model-slot.pro button:not([disabled])');
+      await selectAtOnce(page, '先攻', EX.proModel);
+      await selectAtOnce(page, '後攻', EX.conModel);
+      await page.locator('form select').selectOption(String(EX.turns));
+      await page.locator('form select').blur();
+      // 設定を1枚に収めるため、画面を縮める。下の端のターン数が字幕に隠れないよう、入力の枠を画面の上の端に合わせる
+      await page.evaluate(() => {
+        document.body.style.zoom = '0.55';
+        document.querySelector('form')?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        // 上に固定した見出しの行に、テーマの欄が隠れないようにする
+        window.scrollBy({ top: -36, behavior: 'instant' });
+      });
+      await waitForImages(page);
+      await page.waitForTimeout(500);
+    },
+  },
+  {
+    id: 'ex-open',
+    kind: 'still',
+    video: 'examples',
+    title: '実例編: 議論の画面を開いたところ(見出し。カットインは消す)',
+    loggedIn: true,
+    needsDebate: true,
+    async run(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await page.waitForTimeout(500);
+    },
+  },
+  {
+    id: 'ex-turn1-sym',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン1までスクロールし、「彼が種もみを集めるエピソードは〜象徴的な場面であり」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-open の終わり(議論の画面の頭)と同じ状態から録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await markText(page, '#turn-1 .speech-body', ...EX_TURN1_SYM);
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn1-mark',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン1の1つ目の色を消し、「現代女子高生は、SNS時代に〜」の文に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn1-sym の終わりと同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await markText(page, '#turn-1 .speech-body', ...EX_TURN1_SYM, { animate: false });
+      await clearMarks(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(200);
+      await markText(page, '#turn-1 .speech-body', ...EX_TURN1);
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn2-mark',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン1の色を消してターン2までスクロールし、「今の女子高生が好きになるキャラは、〜徹底的に語ろう。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn1-mark の終わりと同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await markText(page, '#turn-1 .speech-body', ...EX_TURN1, { animate: false });
+      await clearMarks(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await scrollToTurn(page, 2, 'smooth');
+      await page.waitForTimeout(500);
+      // 文はターンの頭にあるので、ターンの頭に寄せたまま塗る(真ん中に寄せ直すと、画面が行き来する)
+      await markText(page, '#turn-2 .speech-body', ...EX_TURN2, { scroll: false });
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn2-mark2',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン2の1つ目の色を消し、「現代の女子高生は、過保護な環境で〜強い憧れを抱く。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn2-mark の終わり(ターン2の頭が画面の上)と同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollToTurn(page, 2, 'instant');
+    },
+    async run(page) {
+      await page.waitForTimeout(200);
+      await markText(page, '#turn-2 .speech-body', ...EX_TURN2_2, { scroll: false });
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn2-mark3',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン2の2つ目の色を消し、「江田島平八は、男塾の塾生たちに〜鷲掴みにするのだ。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn2-mark2 の終わりと同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollToTurn(page, 2, 'instant');
+    },
+    async run(page) {
+      await page.waitForTimeout(200);
+      await markText(page, '#turn-2 .speech-body', ...EX_TURN2_3, { scroll: false });
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn3-mark',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン2の色を消し、ターン3の「バランスが良いことと、〜『感情移入』です。」まで寄せて色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn2-mark3 の終わり(ターン2の頭が画面の上)と同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollToTurn(page, 2, 'instant');
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await markText(page, '#turn-3 .speech-body', ...EX_TURN3);
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn3-mark2',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン3の1つ目の色を消し、「種もみじいさんは『数少ない常識人』〜個性を持つのです。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn3-mark の終わりと同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await markText(page, '#turn-3 .speech-body', ...EX_TURN3, { animate: false });
+      await clearMarks(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(200);
+      await markText(page, '#turn-3 .speech-body', ...EX_TURN3_2);
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn4-mark',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン3の色を消してターン4までスクロールし、「相手の主張に対して、〜突きつけよう。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn3-mark2 の終わりと同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await markText(page, '#turn-3 .speech-body', ...EX_TURN3_2, { animate: false });
+      await clearMarks(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await scrollToTurn(page, 4, 'smooth');
+      await page.waitForTimeout(500);
+      // 文はターンの頭にあるので、ターンの頭に寄せたまま塗る
+      await markText(page, '#turn-4 .speech-body', ...EX_TURN4, { scroll: false });
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn4-mark2',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン4の1つ目の色を消し、「例えば、『ちいかわ』や〜**答えはノーだ**。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn4-mark の終わり(ターン4の頭が画面の上)と同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollToTurn(page, 4, 'instant');
+    },
+    async run(page) {
+      await page.waitForTimeout(200);
+      await markText(page, '#turn-4 .speech-body', ...EX_TURN4_2);
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn4-clear',
+    kind: 'still',
+    video: 'examples',
+    title: '実例編: ex-turn4-mark2 の終わりの位置で、色を消したところ',
+    loggedIn: true,
+    needsDebate: true,
+    async run(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await markText(page, '#turn-4 .speech-body', ...EX_TURN4_2, { animate: false });
+      await clearMarks(page);
+    },
+  },
+  {
+    id: 'ex-turn7-mark',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン7までスクロールし、「女子高生の推し活において重要なのは〜完璧に満たすのです。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn4-clear と同じ状態から録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await markText(page, '#turn-4 .speech-body', ...EX_TURN4_2, { animate: false });
+      await clearMarks(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      // 遠くへ飛ぶので、先になめらかにスクロールしてから塗る(色を付ける処理のスクロールは0.4秒で速い)
+      await scrollToTurn(page, 7, 'smooth');
+      await page.waitForTimeout(800);
+      await markText(page, '#turn-7 .speech-body', ...EX_TURN7);
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn8-mark',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン7の色を消してターン8までスクロールし、「相手の主張に対して、**決定的な反論**を叩きつけよう！」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn7-mark の終わりと同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await markText(page, '#turn-7 .speech-body', ...EX_TURN7, { animate: false });
+      await clearMarks(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await scrollToTurn(page, 8, 'smooth');
+      await page.waitForTimeout(500);
+      // 文はターンの頭にあるので、ターンの頭に寄せたまま塗る
+      await markText(page, '#turn-8 .speech-body', ...EX_TURN8, { scroll: false });
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn8-mark2',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン8の1つ目の色を消し、下へスクロールして「種もみじいさんは、非日常的な世界観や〜条件**なのだ！」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn8-mark の終わり(ターン8の頭が画面の上)と同じ位置から、前の色を消して録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollToTurn(page, 8, 'instant');
+    },
+    async run(page) {
+      await page.waitForTimeout(300);
+      // 文はターンの終わりにあり遠いので、先になめらかにスクロールしてから塗る。
+      // 真ん中に寄せると、すぐ下の結果の節(勝ち負け)が映るので、文を画面の下の方に止める
+      await scrollTurn8End(page, 'smooth');
+      await markText(page, '#turn-8 .speech-body', ...EX_TURN8_2, { scroll: false });
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-turn8-clear',
+    kind: 'still',
+    video: 'examples',
+    title: '実例編: ex-turn8-mark2 の終わりの位置で、色を消したところ',
+    loggedIn: true,
+    needsDebate: true,
+    async run(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollTurn8End(page, 'instant');
+      await markText(page, '#turn-8 .speech-body', ...EX_TURN8_2, { animate: false, scroll: false });
+      await clearMarks(page);
+    },
+  },
+  {
+    id: 'ex-result',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: ターン8の終わりから、結果の節までスクロールする',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-turn8-clear と同じ状態から録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollTurn8End(page, 'instant');
+      await markText(page, '#turn-8 .speech-body', ...EX_TURN8_2, { animate: false, scroll: false });
+      await clearMarks(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await scrollToTop(page, '#result', 'smooth');
+      // 勝ち負けが出る動きを見せる
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-judge-exchange',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: 結果の節から判定の内訳までスクロールし、反論・応答の審判の「詳しく見る」を押して、先攻の理由の「[4]はnote記事が〜言い難い。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-result の終わり(結果の節が画面の上、勝ち負けが出た後)と同じ状態から録る
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollToTop(page, '#result', 'instant');
+      await page.waitForTimeout(5000);
+      await waitForImages(page);
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await scrollToTop(page, '#verdict', 'smooth');
+      await page.waitForTimeout(1500);
+      await page.locator(`${EX_JUDGE_EXCHANGE} .judge-toggle`).click();
+      await page.waitForTimeout(1200);
+      await scrollToTop(page, `${EX_JUDGE_EXCHANGE} .judge-detail.pro`, 'smooth');
+      await page.waitForTimeout(500);
+      await markText(page, `${EX_JUDGE_EXCHANGE} .judge-detail.pro .reason`, ...EX_JUDGE_EXCHANGE_PRO);
+      await page.waitForTimeout(5000);
+    },
+  },
+  {
+    id: 'ex-judge-logic',
+    kind: 'video',
+    video: 'examples',
+    title: '実例編: 反論・応答の審判の内訳を閉じ、論理の審判の「詳しく見る」を押して、後攻の理由の「しかし論理面で重大な問題がある。」に色を付ける',
+    loggedIn: true,
+    needsDebate: true,
+    // ex-judge-exchange の終わりと同じ状態から録る(色は、内訳を閉じると見えなくなる)
+    async setup(page, ctx) {
+      await openDebateWithoutCutIn(page, ctx);
+      await scrollToTop(page, '#verdict', 'instant');
+      await waitForImages(page);
+      await page.locator(`${EX_JUDGE_EXCHANGE} .judge-toggle`).click();
+      await page.waitForTimeout(1200);
+      await scrollToTop(page, `${EX_JUDGE_EXCHANGE} .judge-detail.pro`, 'instant');
+      await markText(page, `${EX_JUDGE_EXCHANGE} .judge-detail.pro .reason`, ...EX_JUDGE_EXCHANGE_PRO, { animate: false });
+    },
+    async run(page) {
+      await page.waitForTimeout(500);
+      await clearMarks(page);
+      await page.locator(`${EX_JUDGE_EXCHANGE} .judge-toggle`).click();
+      await page.waitForTimeout(800);
+      await scrollToTop(page, '#verdict', 'smooth');
+      await page.waitForTimeout(800);
+      await page.locator(`${EX_JUDGE_LOGIC} .judge-toggle`).click();
+      await page.waitForTimeout(1200);
+      await scrollToTop(page, `${EX_JUDGE_LOGIC} .judge-detail.con`, 'smooth');
+      await page.waitForTimeout(500);
+      await markText(page, `${EX_JUDGE_LOGIC} .judge-detail.con .reason`, ...EX_JUDGE_LOGIC_CON);
+      await page.waitForTimeout(5000);
+    },
+  },
 ];
+
+/** ターン8の終わりの文を、画面の下の方(高さの70%)に止める。真ん中に寄せると、すぐ下の結果の節(勝ち負け)が映る */
+async function scrollTurn8End(page: Page, behavior: 'smooth' | 'instant') {
+  await page
+    .locator('#turn-8 .speech-body > :last-child')
+    .evaluate((el, b) => window.scrollTo({ top: el.getBoundingClientRect().bottom + window.scrollY - window.innerHeight * 0.7, behavior: b }), behavior);
+  await page.waitForTimeout(behavior === 'smooth' ? 1800 : 300);
+}
+
+/** 実例編で色を付ける文 */
+const EX_TURN1_SYM = ['彼が種もみを集めるエピソードは', '象徴的な場面であり'] as const;
+const EX_TURN1 = ['現代女子高生は、SNS時代に', 'その問いに答えるキャラクターです。'] as const;
+const EX_TURN2 = ['今の女子高生が好きになるキャラは、', '徹底的に語ろう。'] as const;
+const EX_TURN2_2 = ['現代の女子高生は、過保護な環境で', '強い憧れを抱く。'] as const;
+const EX_TURN2_3 = ['江田島平八は、男塾の塾生たちに', '鷲掴みにするのだ。'] as const;
+const EX_TURN3 = ['バランスが良いことと、実際に好きになることは別問題。', '『感情移入』です。'] as const;
+const EX_TURN3_2 = ['種もみじいさんは『数少ない常識人』であり', '個性を持つのです。'] as const;
+const EX_TURN4 = ['相手の主張に対して、', 'を突きつけよう。'] as const;
+const EX_TURN4_2 = ['例えば、『ちいかわ』や', '**答えはノーだ**。'] as const;
+const EX_TURN7 = ['女子高生の推し活において重要なのは', 'この基準を完璧に満たすのです。'] as const;
+const EX_TURN8 = ['相手の主張に対して、', 'を叩きつけよう！'] as const;
+const EX_TURN8_2 = ['種もみじいさんは、非日常的な世界観や', '条件**なのだ！'] as const;
+/** 実例編の審判のカード(並びは判定の順。1人目が論理、3人目が反論・応答) */
+const EX_JUDGE_LOGIC = '.judges > .judge-card:nth-child(1)';
+const EX_JUDGE_EXCHANGE = '.judges > .judge-card:nth-child(3)';
+const EX_JUDGE_EXCHANGE_PRO = ['[4]はnote記事が主軸で', '言い難い。'] as const;
+const EX_JUDGE_LOGIC_CON = ['しかし論理面で', '重大な問題がある。'] as const;
+
+/** 2本目(実例編)の議論の設定(docs/06-explainer-video/README.md「2本目(実例編)」) */
+const EX = {
+  theme: '今の女子高生が好きになるキャラはどっち？',
+  pro: '北斗の拳の種もみじいさん',
+  con: '魁男塾の江田島平八',
+  proModel: 'Claude Haiku 4.5',
+  conModel: 'Mistral Large 3',
+  turns: 8,
+};

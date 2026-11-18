@@ -1,0 +1,47 @@
+{
+  "background": "assets/backgrounds/courtroom.png",
+  "kicker": [
+    {
+      "text": "AI同士",
+      "color": "pro"
+    },
+    {
+      "text": "で"
+    },
+    {
+      "text": "議論",
+      "color": "con"
+    },
+    {
+      "text": "させてみた"
+    }
+  ],
+  "title": [
+    {
+      "text": "女子高生",
+      "color": "alert"
+    },
+    {
+      "text": "はどっちが好き？"
+    }
+  ],
+  "subtitle": [
+    {
+      "text": "種もみじいさん",
+      "color": "pro"
+    },
+    {
+      "text": "VS"
+    },
+    {
+      "text": "江田島平八",
+      "color": "con"
+    }
+  ],
+  "badge": "実例編",
+  "screen": "ex-open",
+  "expressions": {
+    "metan": "surprised",
+    "zundamon": "smile"
+  }
+}

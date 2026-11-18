@@ -1,3 +1,6 @@
 {
-  "debateId": "8bd4e89e-5a27-4d29-a228-05c096edb0c2"
+  "debates": {
+    "overview": "8bd4e89e-5a27-4d29-a228-05c096edb0c2",
+    "examples": "370c7823-f203-4f75-86d2-dbb0fd5bc038"
+  }
 }

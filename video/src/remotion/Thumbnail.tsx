@@ -13,6 +13,8 @@ export interface TextPart {
 }
 
 export interface ThumbnailProps extends Record<string, unknown> {
+  /** 題の上に小さく出す行。省ける */
+  kicker?: TextPart[];
   title: TextPart[];
   subtitle: TextPart[];
   badge: string;
@@ -80,7 +82,7 @@ function Line({ parts, size, top, font }: { parts: TextPart[]; size: number; top
   );
 }
 
-export function Thumbnail({ title, subtitle, badge, background, screen, expressions, tachie, font }: ThumbnailProps) {
+export function Thumbnail({ kicker, title, subtitle, badge, background, screen, expressions, tachie, font }: ThumbnailProps) {
   const fontStyle = useFont(font);
   return (
     <AbsoluteFill style={{ background: '#3b2f2a', overflow: 'hidden' }} lang="ja">
@@ -120,9 +122,11 @@ export function Thumbnail({ title, subtitle, badge, background, screen, expressi
           />
         );
       })}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 250, background: 'linear-gradient(rgba(31,35,40,0.93), rgba(31,35,40,0.6))' }} />
-      <Line parts={title} size={96} top={22} font={fontStyle} />
-      <Line parts={subtitle} size={66} top={142} font={fontStyle} />
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: kicker ? 262 : 250, background: 'linear-gradient(rgba(31,35,40,0.93), rgba(31,35,40,0.6))' }} />
+      {/* 題の上の小さい行があるときは、3行に詰める */}
+      {kicker && <Line parts={kicker} size={44} top={14} font={fontStyle} />}
+      <Line parts={title} size={kicker ? 100 : 96} top={kicker ? 66 : 22} font={fontStyle} />
+      <Line parts={subtitle} size={kicker ? 60 : 66} top={kicker ? 184 : 142} font={fontStyle} />
       <div
         style={{
           position: 'absolute',

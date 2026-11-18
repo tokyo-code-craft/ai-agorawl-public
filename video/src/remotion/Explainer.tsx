@@ -1,7 +1,7 @@
 // 掛け合いの映像。docs/06-explainer-video/README.md「映像」
 import { AbsoluteFill, Freeze, Html5Audio, Img, interpolate, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from 'remotion';
 import { CHARACTERS, tachiePath, type SpeakerId } from '../characters.ts';
-import { FADE_SEC, FPS, GAP_SEC, isMouthOpen, screenSegments, type ScreenSegment, type TimedLine } from '../timeline.ts';
+import { blackoutOpacity, FADE_SEC, FPS, GAP_SEC, isMouthOpen, screenSegments, type ScreenSegment, type TimedLine } from '../timeline.ts';
 
 export interface ExplainerProps extends Record<string, unknown> {
   title: string;
@@ -50,7 +50,7 @@ export function Explainer({ title, lines, tachie, bgm, background, totalFrames, 
 
   // 話し手ごとの表情は、その話し手の直前のセリフの表情
   const expressionOf = (id: SpeakerId) =>
-    [...lines].reverse().find((l) => l.speaker === id && l.from <= frame + gap)?.expression ?? 'normal';
+    [...lines].reverse().find((l) => (l.speaker === id || l.with === id) && l.from <= frame + gap)?.expression ?? 'normal';
 
   // 画面の映像を出している間は、画面を大きく出し、2人を左右の下に小さく出す
   const segments = screenSegments(lines, totalFrames);
@@ -85,8 +85,10 @@ export function Explainer({ title, lines, tachie, bgm, background, totalFrames, 
       ))}
 
       {(Object.keys(SIDE) as SpeakerId[]).map((id) => {
-        const active = current?.speaker === id;
-        const open = !!speaking && speaking.speaker === id && isMouthOpen(speaking.voice, (frame - speaking.from) / FPS);
+        const active = current?.speaker === id || current?.with === id;
+        // 2人で同時に言う行は、それぞれの音声で口を動かす
+        const voice = speaking?.speaker === id ? speaking.voice : speaking?.with === id ? speaking.voice.together : undefined;
+        const open = !!speaking && !!voice && isMouthOpen(voice, (frame - speaking.from) / FPS);
         return (
           <Tachie
             key={id}
@@ -101,7 +103,8 @@ export function Explainer({ title, lines, tachie, bgm, background, totalFrames, 
         );
       })}
 
-      {current && <Subtitle line={current} />}
+      {/* 次の行で画面を一瞬黒くするときは、黒くし始めたところで字幕を消す(前の字幕を、次の画面に残さない) */}
+      {current && !lines.some((l) => l.blackoutFrom !== undefined && l.from > current.from && l.blackoutFrom <= frame) && <Subtitle line={current} />}
 
       {bgm && (
         <Html5Audio
@@ -115,6 +118,7 @@ export function Explainer({ title, lines, tachie, bgm, background, totalFrames, 
       {lines.map((l, i) => (
         <Sequence key={i} from={l.from} durationInFrames={l.frames} layout="none">
           <Html5Audio src={staticFile(l.voice.file)} />
+          {l.voice.together && <Html5Audio src={staticFile(l.voice.together.file)} />}
         </Sequence>
       ))}
 
@@ -122,7 +126,7 @@ export function Explainer({ title, lines, tachie, bgm, background, totalFrames, 
       <AbsoluteFill
         style={{
           background: '#000',
-          opacity: Math.max(0, 1 - frame / (FADE_SEC * FPS), 1 - (totalFrames - 1 - frame) / (FADE_SEC * FPS)),
+          opacity: Math.max(0, 1 - frame / (FADE_SEC * FPS), 1 - (totalFrames - 1 - frame) / (FADE_SEC * FPS), blackoutOpacity(lines, frame)),
           pointerEvents: 'none',
         }}
       />
@@ -242,7 +246,11 @@ function Subtitle({ line }: { line: TimedLine }) {
         color: '#222',
       }}
     >
-      <div style={{ fontSize: 28, color: c.color, marginBottom: 4 }}>{c.name}</div>
+      <div style={{ fontSize: 28, color: c.color, marginBottom: 4 }}>
+        {c.name}
+        {/* 2人で同時に言う行は、2人の名前を並べる */}
+        {line.with && <span style={{ color: CHARACTERS[line.with].color }}>・{CHARACTERS[line.with].name}</span>}
+      </div>
       {line.text}
     </div>
   );

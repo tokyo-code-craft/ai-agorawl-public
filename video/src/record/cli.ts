@@ -7,7 +7,7 @@
 // 環境変数: AGORAWL_WEB_URL(本番の画面の URL)、AGORAWL_USER、AGORAWL_PASSWORD(ログイン。コミットしない)
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { chromium, type Browser, type BrowserContextOptions } from 'playwright';
-import { SCENES, waitForList, type Scene, type SceneContext } from './scenes.ts';
+import { SCENES, waitForList, type Scene, type SceneContext, type VideoName } from './scenes.ts';
 import { Screencast } from './screencast.ts';
 
 const OUT = 'public/screens';
@@ -17,8 +17,8 @@ const VIEWPORT = { width: 1280, height: 720 };
 const SCALE = 1.5;
 
 interface RecordJson {
-  /** 見せる議論の ID(create の場面で作ったもの) */
-  debateId?: string;
+  /** 動画ごとの、見せる議論の ID(overview は create の場面で作ったもの) */
+  debates: Partial<Record<VideoName, string>>;
 }
 
 const args = process.argv.slice(2);
@@ -37,29 +37,35 @@ const env = (name: string) => {
 };
 /** ログインした状態(トークンを含む。out/ に置き、コミットしない)。場面ごとにアカウントを変えるので、アカウントごとに分ける */
 const AUTH_STATE = `out/auth-state-${env('AGORAWL_USER').replace(/[^A-Za-z0-9.-]/g, '_')}.json`;
-const record: RecordJson = existsSync(RECORD_JSON) ? JSON.parse(readFileSync(RECORD_JSON, 'utf-8')) : {};
-const ctx: SceneContext = {
-  webUrl: env('AGORAWL_WEB_URL').replace(/\/$/, ''),
-  user: env('AGORAWL_USER'),
-  password: env('AGORAWL_PASSWORD'),
-  debateId: record.debateId,
+const record: RecordJson = existsSync(RECORD_JSON) ? JSON.parse(readFileSync(RECORD_JSON, 'utf-8')) : { debates: {} };
+record.debates ??= {};
+const webUrl = env('AGORAWL_WEB_URL').replace(/\/$/, '');
+const user = env('AGORAWL_USER');
+const password = env('AGORAWL_PASSWORD');
+/** 場面の動画(見せる議論を選ぶ)。省略すると1本目 */
+const videoOf = (s: Scene): VideoName => s.video ?? 'overview';
+/** 場面ごとの文脈。見せる議論は、場面の動画の議論 */
+const contextFor = (s: Scene): SceneContext => ({
+  webUrl,
+  user,
+  password,
+  debateId: record.debates[videoOf(s)],
   saveDebateId(id) {
-    record.debateId = id;
-    ctx.debateId = id;
+    record.debates[videoOf(s)] = id;
     writeFileSync(RECORD_JSON, `${JSON.stringify(record, null, 2)}\n`);
-    console.log(`  作った議論の ID を ${RECORD_JSON} に書いた: ${id}`);
+    console.log(`  作った議論の ID を ${RECORD_JSON} の debates.${videoOf(s)} に書いた: ${id}`);
   },
-};
+});
 
-const scenes = ids[0] === 'all' ? SCENES.filter((s) => !s.costs && (!s.needsDebate || ctx.debateId)) : ids.map((id) => {
+const scenes = ids[0] === 'all' ? SCENES.filter((s) => !s.costs && (!s.needsDebate || record.debates[videoOf(s)])) : ids.map((id) => {
   const s = SCENES.find((x) => x.id === id);
   if (!s) throw new Error(`場面 ${id} がない(npm run record -- list)`);
   return s;
 });
 for (const s of scenes) {
   if (s.costs && !cost) throw new Error(`場面 ${s.id} は Bedrock の費用がかかる。録るときは --cost を付ける`);
-  if (s.needsDebate && !ctx.debateId && !scenes.some((x) => x.id === 'create')) {
-    throw new Error(`場面 ${s.id} には見せる議論が要る。先に create を録るか、${RECORD_JSON} に debateId を書く`);
+  if (s.needsDebate && !record.debates[videoOf(s)] && !scenes.some((x) => x.id === 'create' && videoOf(x) === videoOf(s))) {
+    throw new Error(`場面 ${s.id} には見せる議論が要る。先に create を録るか、${RECORD_JSON} の debates.${videoOf(s)} に議論の ID を書く`);
   }
 }
 
@@ -81,13 +87,13 @@ async function ensureLoggedIn(browser: Browser) {
   if (existsSync(AUTH_STATE) && Date.now() - statSync(AUTH_STATE).mtimeMs < 50 * 60 * 1000) return;
   const context = await browser.newContext({ viewport: VIEWPORT });
   const page = await context.newPage();
-  await page.goto(`${ctx.webUrl}/`);
+  await page.goto(`${webUrl}/`);
   await page.getByRole('button', { name: 'ログイン' }).click();
-  await page.waitForURL((u) => !u.href.startsWith(ctx.webUrl), { timeout: 15000 });
-  await page.locator('input[name="username"]:visible').fill(ctx.user);
-  await page.locator('input[name="password"]:visible').fill(ctx.password);
+  await page.waitForURL((u) => !u.href.startsWith(webUrl), { timeout: 15000 });
+  await page.locator('input[name="username"]:visible').fill(user);
+  await page.locator('input[name="password"]:visible').fill(password);
   await page.locator('input[name="signInSubmitButton"]:visible').click();
-  await page.waitForURL((u) => u.href.startsWith(ctx.webUrl), { timeout: 15000 });
+  await page.waitForURL((u) => u.href.startsWith(webUrl), { timeout: 15000 });
   await waitForList(page);
   mkdirSync('out', { recursive: true });
   await context.storageState({ path: AUTH_STATE });
@@ -96,6 +102,7 @@ async function ensureLoggedIn(browser: Browser) {
 
 async function recordScene(browser: Browser, s: Scene) {
   if (s.loggedIn) await ensureLoggedIn(browser);
+  const ctx = contextFor(s);
   const options: BrowserContextOptions = {
     viewport: VIEWPORT,
     deviceScaleFactor: SCALE,

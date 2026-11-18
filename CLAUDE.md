@@ -109,6 +109,7 @@ AWS(CDK / Lambda / Step Functions / Bedrock / DynamoDB / API Gateway)で構築�
 - 動作確認(デプロイ後): `npm run start-debate -- "テーマ" "先攻の立場" "後攻の立場" [maxTurns]`
 - 議論の分析(デプロイ後): `npm run analyze-debate -- <議論ID> [<議論ID> …]`
 - HTTP APIの動作確認(デプロイ後): `AGORAWL_USER=… AGORAWL_PASSWORD=… npm run call-api -- <list|get|create|watch|raw> …`
+- 公開用のリポジトリ(`tokyo-code-craft/ai-agorawl-public`)へ写す: `npm run publish-public`(ユーザーの指示があるときのみ。先に `npm run publish-public -- --dry-run` で差分を見せる。手元の `main` を GitHub の `main` と同じにしておく。仕様: `docs/00-overview/README.md`「リポジトリの公開」)
 - リントは未導入。
 
 ## レビューの観点(PRの自動レビュー用)
